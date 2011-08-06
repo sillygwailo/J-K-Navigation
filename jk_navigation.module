@@ -1,0 +1,175 @@
+<?php
+/**
+ * @file
+ * Adds J/K navigation to comments.
+ *
+ * Navigate through lists of either nodes or comments using the j/k
+ * keys. The keys are customizable in the administration interface,
+ * as well as some other options that are available from the
+ * jQuery jk navigation plugin available at:
+ * 
+ * http://plugins.jquery.com/project/jknav
+ *
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function jk_navigation_menu() {
+  $items = array();
+  $items['admin/config/user-interface/jk_navigation'] = array(
+    'title' => 'J/K Navigation',
+    'description' => 'Change the selector which applies to J/K navigation',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('jk_navigation_settings_form'),
+    'access arguments' => array('administer jk_navigation'),
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function jk_navigation_permission() {
+  return array(
+    'administer jk_navigation' =>  array(
+      'title' => t('Administer J/K Navigation'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_init().
+ */
+function jk_navigation_init() {
+  if (module_exists('libraries')) {
+    $jk_navigation_library_path = libraries_get_path('jknav');
+  }
+  else {
+    $jk_navigation_library_path = drupal_get_path('module', 'jk_navigation') . '/js';
+  }
+  drupal_add_js($jk_navigation_library_path . '/jquery.jknav.min.js');
+  $jknav_default_options = array(
+    'up' => 'k',
+    'down' => 'j',
+    'name' => 'default',
+    'easing' => 'swing',
+    'speed' => 'normal', 
+    'circular' => TRUE,
+    'reevaluate' => FALSE,
+  );
+  drupal_add_js(
+    array(
+      'jk_navigation' => array(
+        'selector' => variable_get('jk_navigation_selector', 'h3.comment-title'),
+        'options' => variable_get('jk_navigation_options', $jknav_default_options),
+      )
+    ), 'setting');
+  drupal_add_js(drupal_get_path('module', 'jk_navigation') . '/js/jk_navigation.js');
+}
+
+/**
+ * Implements hook_form().
+ */
+function jk_navigation_settings_form() {
+  $form = array();
+  $form['selector'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Navigation selector'),
+    '#default_value' => variable_get('jk_navigation_selector', 'h3.comment-title'),
+    '#maxlength' => 127,
+  );
+  $plugin_options = array();
+  $jknav_default_options = array(
+    'up' => 'k',
+    'down' => 'j',
+    'name' => 'default',
+    'easing' => 'swing',
+    'speed' => 'normal', 
+    'circular' => TRUE,
+    'reevaluate' => FALSE,
+  );
+  $jknav_options = variable_get('jk_navigation_options', $jknav_default_options);
+  
+  $form['up'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Up'),
+    '#description' => t('The key to move up an item.'),
+    '#default_value' => $jknav_options['up'],
+    '#size' => 1,
+    '#maxlength' => 1,
+  );
+  $form['down'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Down'),
+    '#description' => t('The key to move down an item.'),
+    '#default_value' => $jknav_options['down'],
+    '#size' => 1,
+    '#maxlength' => 1,
+  );
+  $form['name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Name'),
+    '#description' => t('The name of the options.'),
+    '#default_value' => $jknav_options['name'],
+    '#size' => 40,
+    '#maxlength' => 255,
+  );
+  $form['speed'] = array(
+    '#type' => 'select',
+    '#title' => t('Speed'),
+    '#multiple' => FALSE,
+    '#description' => t('How fast the item moves to the next or previous one.'),
+    '#options' => drupal_map_assoc(array('slow', 'normal', 'fast')),
+    '#default_value' => $jknav_options['speed'],
+  );
+  
+  $form['easing'] = array(
+    '#type' => 'select',
+    '#title' => t('Easing'),
+    '#multiple' => FALSE,
+    '#description' => t('The description appears usually below the item.'),
+    '#options' => drupal_map_assoc(array('swing', 'linear')),
+    '#default_value' => $jknav_options['easing'],
+  );
+  $form['circular'] = array(
+    '#type' => 'radios',
+    '#title' => t('At the end:'),
+    '#description' => t('The description appears usually below the radio buttons.'),
+    '#options' => array(1 => 'Go to the top', 0 => 'Stops at the end'),
+    '#default_value' => $jknav_options['circular'],
+  );
+  $form['reevaluate'] = array(
+    '#type' => 'radios',
+    '#title' => t('Start from:'),
+    '#description' => t('<strong>Current position</strong> means go to the next or previous item based on where a user is on the page. <strong>Last position</strong> uses where the user ended up next using the navigation keys.'),
+    '#options' => array(0 => 'Last position', 1 => 'Current position'),
+    '#default_value' => $jknav_options['reevaluate'],
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save configuration'),
+  );
+  
+  $form['#submit'] = array('jk_navigation_settings_form_submit');
+  return $form;
+}
+
+function jk_navigation_settings_form_submit($form, &$form_state) {
+  $jknav_options = array(
+    'up' => $form['up']['#value'],
+    'down' => $form['down']['#value'],
+    'name' => $form['name']['#value'],
+    'speed' => $form['speed']['#value'],
+    'easing' => $form['easing']['#value'],
+    'circular' => $form['circular']['#value'],
+    'reevaluate' => $form['reevaluate']['#value'],
+  );
+
+  variable_set('jk_navigation_options', $jknav_options);
+
+  variable_set('jk_navigation_selector', $form['selector']['#value']);
+
+  drupal_set_message(t('J/K Navigation options saved.'));
+
+}

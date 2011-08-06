@@ -1,0 +1,5 @@
+name = J/K Navigation
+description = "Adds up/down navigation using the j/k keys, which are configurable. Requires the jk navigation jQuery plugin."
+core = 7.x
+files[] = jk_navigation.module
+configure = admin/config/user-interface/jk_navigation

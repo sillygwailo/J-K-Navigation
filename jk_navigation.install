@@ -1,0 +1,37 @@
+<?php
+
+/**
+ * Implements hook_requirements().
+ */
+function jk_navigation_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+  switch ($phase) {
+    case 'runtime':
+      if (module_exists('libraries')) {
+        $jk_navigation_library_path = libraries_get_path('jknav');
+      }
+      else {
+        $jk_navigation_library_path = drupal_get_path('module', 'jknav') . '/js';
+      }
+      if (!file_exists($jk_navigation_library_path . '/jquery.jknav.min.js')) {
+        $requirements['jk_navigation'] = array(
+          'title' => $t('jQuery J/K Navigation'),
+          'description' => $t('Obtain the latest release of the <a href="@plugin">jQuery jk navigation plugin</a> and install it in in the <em>@path</em> folder.', array(
+            '@plugin' => 'http://plugins.jquery.com/project/jknav',
+            '@path' => $jk_navigation_library_path,
+          )),
+          'severity' => ($phase == 'install' ? REQUIREMENT_WARNING : REQUIREMENT_ERROR),
+          'value' => $t('jQuery jk navigation plugin missing'),
+        );
+      }
+      elseif ($phase == 'runtime') {
+        $requirements['jk_navigation'] = array(
+          'title' => $t('J/K Navigation'),
+          'severity' => REQUIREMENT_OK,
+          'value' => $t('jQuery jk navigation plugin installed correctly'),
+        );
+      }
+      return $requirements;
+  }
+}
