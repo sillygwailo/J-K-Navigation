@@ -2,7 +2,7 @@ INSTALLATION
 ============
 
 1. Install and enable the J/K Navigation module as you normally would.
-2. Download the jk navigation jQuery plugin from http://plugins.jquery.com/project/jknav
+2. Download the jk navigation jQuery plugin from https://plugins.jquery.com/jknav/
 3. Unzip the jk navigation plugin into one of two possible folders:
    a. If you have the Libraries module enabled, unzip the plugin into the 
    sites/all/libraries/jknav folder, such that the resulting full path of
