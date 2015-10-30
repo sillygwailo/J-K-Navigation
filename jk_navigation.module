@@ -56,7 +56,7 @@ function jk_navigation_init() {
     'easing' => 'swing',
     'speed' => 'normal', 
     'circular' => TRUE,
-    'reevaluate' => FALSE,
+    'reevaluate' => 0,
   );
   drupal_add_js(
     array(
@@ -87,7 +87,7 @@ function jk_navigation_settings_form() {
     'easing' => 'swing',
     'speed' => 'normal', 
     'circular' => TRUE,
-    'reevaluate' => FALSE,
+    'reevaluate' => 0,
   );
   $jknav_options = variable_get('jk_navigation_options', $jknav_default_options);
   
