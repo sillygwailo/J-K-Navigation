@@ -18,7 +18,7 @@ function jk_navigation_requirements($phase) {
         $requirements['jk_navigation'] = array(
           'title' => $t('jQuery J/K Navigation'),
           'description' => $t('Obtain the latest release of the <a href="@plugin">jQuery jk navigation plugin</a> and install it in in the <em>@path</em> folder.', array(
-            '@plugin' => 'http://plugins.jquery.com/project/jknav',
+            '@plugin' => 'https://github.com/lbarchive/jquery-jknav',
             '@path' => $jk_navigation_library_path,
           )),
           'severity' => ($phase == 'install' ? REQUIREMENT_WARNING : REQUIREMENT_ERROR),
